@@ -23,7 +23,7 @@ def draw_barplot_means_sds(
 ) -> mpl.axes:
 
     """
-    draws a barplot with signif_markers grouped by big_group then small_group
+    draws a barplot (with signif_markers) grouped by big_group and small_group
 
     Input:
     ---
@@ -55,8 +55,10 @@ def draw_barplot_means_sds(
     grouped_data: pd.DataFrame = tab_with_data[
         [col_with_digits, col_big_group, col_small_group]
     ].groupby([col_big_group, col_small_group])
+
     means: pd.DataFrame = grouped_data.mean().reset_index()
     stds: pd.DataFrame = grouped_data.std().reset_index()
+
     maks_val: float = (
         means[col_with_digits].max() + stds[col_with_digits].max()
     ) * 1.17  # 1.17 adds additional free space above whisker cap
