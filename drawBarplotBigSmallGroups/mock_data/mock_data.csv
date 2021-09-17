@@ -1,0 +1,17 @@
+sample_id,molecule1,molecule2,bg,sg
+1,125,125,lean,f
+2,75,75,lean,f
+3,105,105,lean,f
+4,114,114,lean,f
+5,45,45,obese,m
+6,59,59,obese,m
+7,58,58,obese,m
+8,65,65,obese,m
+9,118,118,obese,f
+10,151,151,obese,f
+11,120,120,obese,f
+12,144,144,obese,f
+13,88,88,lean,m
+14,57,57,lean,m
+15,76,76,lean,m
+16,66,66,lean,m
