@@ -50,8 +50,6 @@ def draw_barplot_means_sds(
     bg1_sg1, bg1_sg2, bg1_sg3,...    bg2_sg1, bg2_sg2, bg2_sg3,...
     """
 
-    axes = plt.gca()
-
     grouped_data: pd.DataFrame = tab_with_data[
         [col_with_digits, col_big_group, col_small_group]
     ].groupby([col_big_group, col_small_group])
@@ -113,6 +111,7 @@ def draw_barplot_means_sds(
     for bar in g.patches:
         bar.set_zorder(3)
 
+    axes = plt.gca()
     axes.set_ylim([0, maks_val * 1.1])  # 1.1 additional space,
     # e.g so that legend would not overlap with signif_markers
 
