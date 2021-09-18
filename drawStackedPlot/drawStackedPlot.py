@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sns
 
-plt.rcParams["figure.facecolor"] = "white"
-plt.rcParams["axes.facecolor"] = "white"
-
-df = pd.read_csv("./mock_data/mock_data.csv", index_col=0)
-
 
 def draw_stackPlot(
     tab_with_data: pd.DataFrame,
@@ -50,6 +45,26 @@ def draw_stackPlot(
     a graph (stacked barplot or stacked percentage plot) - mpl.axes object
     """
 
+    x_pos: [int] = list(range(len(groups_names)))
+    bar_width: float = 0.5
+
+    bottoms: [float] = [0] * len(groups_names)
+
+    for i in range(len(molecules_names)):
+        heights = list(tab_with_data.loc[molecules_names[i], :])
+
+        plt.bar(
+            x=x_pos,
+            height=heights,
+            bottom=bottoms,
+            color=colors_molecules[i],
+            edgecolor="black",
+            width=bar_width,
+        )
+
+        bottoms = list(map(lambda x, y: x + y, bottoms, heights))
+
+    # return 0
     # plt.title(label=main_title)
     # plt.xlabel(xlabel=x_axis_title)
     # plt.ylabel(ylabel=y_axis_title)

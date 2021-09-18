@@ -10,20 +10,20 @@ df = pd.read_csv("./mock_data/mock_data.csv")
 # optional
 # sns.set_context(context="paper")
 # plt.figure(figsize=(13, 8))
-def draw_stackPlot(
-    tab_with_data: pd.DataFrame,
-    groups_names: [str],
-    molecules_names: [str],
-    order_groups: [str],
-    labels_groups: [str],
-    order_molecules: [str],
-    labels_molecules: [str],
-    colors_molecules: [(int)],
-    main_title: str,
-    y_axis_title: str,
-    x_axis_title: str,
-    percentage: bool,
-) -> mpl.axes:
+draw_stackPlot(
+    tab_with_data=df,
+    groups_names=["gr1", "gr2"],
+    molecules_names=["molecule1", "molecule2", "molecule3"],
+    order_groups=["gr1", "gr2"],
+    labels_groups=["Gr1", "Gr2"],
+    order_molecules=["molecule1", "molecule2", "molecule3"],
+    labels_molecules=["Molecule1", "Molecule2", "Molecule3"],
+    colors_molecules=[(1, 0, 0), (0, 1, 0), (0, 0, 1)],
+    main_title="main_title",
+    y_axis_title="amount of molecules",
+    x_axis_title="groups",
+    percentage=False,
+)
 
 # optional
 # plt.show()
