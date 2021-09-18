@@ -4,15 +4,14 @@
 # optional
 # plt.rcParams["figure.facecolor"] = "white"
 # plt.rcParams["axes.facecolor"] = "white"
-# sns.set_context(context="paper")
 
 df = pd.read_csv("./mock_data/mock_data.csv")
 signif_markers = pd.read_csv("./mock_data/mock_markers.csv", index_col=0)
 signif_markers = signif_markers.fillna(value="")
 
 # optional
+# sns.set_context(context="paper")
 # plt.figure(figsize=(13, 8))
-
 draw_barplot_means_sds(
     tab_with_data=df,
     tab_with_signif_markers=signif_markers,
