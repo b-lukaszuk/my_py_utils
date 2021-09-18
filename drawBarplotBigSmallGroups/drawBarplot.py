@@ -33,10 +33,10 @@ def draw_barplot_means_sds(
     col_big_group - name of the column with 'big grouping' (clusters of bars)
     col_small_group - name of the column with 'smal grouping' (bars within a cluster)
     order_big_group - order of big groups (left to right) on the graph
-    labels_big_group - labels of big group displayed on the graph (x-axis ticks)
+    labels_big_group - labels of big_gr displayed on the graph (x-axis ticks)
     order_small_group - order of small groups (left to right) in the cluster
     labels_small_group - labels of small groups (displayed on legend)
-    colors_small_group - colors of small groups (bars withing a cluster and legend)
+    colors_small_group - colors of small_gr (bars withing a cluster and legend)
     main_title - title of the graph
     y_axis_title - title on the y-axis (over y-axis, on the left)
     x_axis_title - title on the (under) x-axis
