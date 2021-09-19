@@ -54,9 +54,9 @@ def draw_stackPlot(
     groups_names - names of columns (they will be bars on graph)
     molecules_names - names of molecules (indexes) they will compose bars
     order_groups - order of groups (left to right, order of bars on the graph)
-    labels_groups - labels displayed under the bars
+    labels_groups - labels displayed under the bars (labels for order_groups)
     order_molecules - order of molecules, i.e. of a bar parts (bottom to top)
-    labels_molecules - labels of molecules in the legend
+    labels_molecules - labels for order_molecules displayed in the legend
     order_small_group - order of small groups (left to right) in the cluster
     colors_molecules: - colors of bar parts representing given molecules
     main_title - title of the graph
@@ -69,18 +69,34 @@ def draw_stackPlot(
     a graph (stacked barplot or stacked percentage plot) - mpl.axes object
     """
 
-    tab_data = tab_with_data.copy()
+    tab_data: pd.DataFrame = tab_with_data.copy()
+    tab_data = tab_data.loc[molecules_names, groups_names]
 
     if percentage:
         tab_data = dfToColFract(tab_data, True)
+
+    tab_data = tab_data.loc[order_molecules, order_groups]
+
+    maxVal: float = tab_data.sum(axis=0).max()
+
+    plt.grid(
+        b=True,
+        linestyle="dashed",
+        which="major",
+        alpha=0.6,
+        axis="y",
+        color="grey",
+        dashes=(5, 2),
+        zorder=0,
+    )
 
     x_pos: [int] = list(range(len(groups_names)))
     bar_width: float = 0.5
 
     bottoms: [float] = [0] * len(groups_names)
 
-    for i in range(len(molecules_names)):
-        heights = list(tab_data.loc[molecules_names[i], :])
+    for i in range(len(order_molecules)):
+        heights = list(tab_data.loc[order_molecules[i], :])
 
         plt.bar(
             x=x_pos,
@@ -89,12 +105,17 @@ def draw_stackPlot(
             color=colors_molecules[i],
             edgecolor="black",
             width=bar_width,
+            zorder=2,
         )
 
         bottoms = list(map(lambda x, y: x + y, bottoms, heights))
 
+    axes = plt.gca()
+    axes.set_ylim([0, maxVal * 1.2])
+
+    plt.title(label=main_title)
+    plt.xlabel(xlabel=x_axis_title)
+    plt.ylabel(ylabel=y_axis_title)
+    plt.xticks(ticks=x_pos, labels=labels_groups)
+
     # return 0
-    # plt.title(label=main_title)
-    # plt.xlabel(xlabel=x_axis_title)
-    # plt.ylabel(ylabel=y_axis_title)
-    # plt.xticks(ticks=ticks_big, labels=labels_big_group)
