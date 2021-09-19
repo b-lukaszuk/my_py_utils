@@ -5,7 +5,7 @@
 # plt.rcParams["figure.facecolor"] = "white"
 # plt.rcParams["axes.facecolor"] = "white"
 
-df = pd.read_csv("./mock_data/mock_data.csv")
+df = pd.read_csv("./mock_data/mock_data.csv", index_col=0)
 
 # optional
 # sns.set_context(context="paper")
