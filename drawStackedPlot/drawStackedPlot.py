@@ -6,6 +6,30 @@ import matplotlib.patches as mpatches
 import seaborn as sns
 
 
+def dfToColFract(df: pd.DataFrame, percentage: bool = True):
+
+    """
+    transforms all the numbers in a table to
+    fractions of colSums (or percentages)
+
+    Input:
+    ---
+    df - table to be transformed
+    percentage - should y axis represent absolute values or pct (upto 100%)
+
+    Output:
+    ---
+    new transformed table, each result is val1/colSum1 (optionally: *100)
+    """
+
+    colSums: pd.Series = df.sum(axis=0)
+    fractions: pd.DataFrame = df / colSums
+    if percentage:
+        return fractions * 100
+    else:
+        return fractions
+
+
 def draw_stackPlot(
     tab_with_data: pd.DataFrame,
     groups_names: [str],
@@ -74,27 +98,3 @@ def draw_stackPlot(
     # plt.xlabel(xlabel=x_axis_title)
     # plt.ylabel(ylabel=y_axis_title)
     # plt.xticks(ticks=ticks_big, labels=labels_big_group)
-
-
-def dfToColFract(df: pd.DataFrame, percentage: bool = True):
-
-    """
-    transforms all the numbers in a table to
-    fractions of colSums (or percentages)
-
-    Input:
-    ---
-    df - table to be transformed
-    percentage - should y axis represent absolute values or pct (upto 100%)
-
-    Output:
-    ---
-    new transformed table, each result is val1/colSum1 (optionally: *100)
-    """
-
-    colSums: pd.Series = df.sum(axis=0)
-    fractions: pd.DataFrame = df / colSums
-    if percentage:
-        return fractions * 100
-    else:
-        return fractions
