@@ -45,13 +45,18 @@ def draw_stackPlot(
     a graph (stacked barplot or stacked percentage plot) - mpl.axes object
     """
 
+    tab_data = tab_with_data.copy()
+
+    if percentage:
+        tab_data = dfToColFract(tab_data, True)
+
     x_pos: [int] = list(range(len(groups_names)))
     bar_width: float = 0.5
 
     bottoms: [float] = [0] * len(groups_names)
 
     for i in range(len(molecules_names)):
-        heights = list(tab_with_data.loc[molecules_names[i], :])
+        heights = list(tab_data.loc[molecules_names[i], :])
 
         plt.bar(
             x=x_pos,
