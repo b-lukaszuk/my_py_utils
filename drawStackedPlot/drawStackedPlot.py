@@ -1,9 +1,7 @@
 import pandas as pd
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import seaborn as sns
 
 
 def dfToColFract(df: pd.DataFrame, percentage: bool = True):
@@ -112,6 +110,19 @@ def draw_stackPlot(
 
     axes = plt.gca()
     axes.set_ylim([0, maxVal * 1.2])
+
+    handles1: [mpatches.Patch] = []
+    for i in range(len(order_molecules)):
+        handles1.append(
+            mpatches.Patch(
+                edgecolor="black",
+                linewidth=2,
+                facecolor=colors_molecules[i],
+                label=labels_molecules[i],
+            )
+        )
+
+    plt.legend(handles=handles1, loc="best")
 
     plt.title(label=main_title)
     plt.xlabel(xlabel=x_axis_title)
