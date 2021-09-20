@@ -110,6 +110,7 @@ def draw_stackPlot(
 
     axes = plt.gca()
     axes.set_ylim([0, maxVal * 1.2])
+    axes.set_xlim([-1, len(groups_names) + 1])
 
     handles1: [mpatches.Patch] = []
     for i in range(len(order_molecules)):
