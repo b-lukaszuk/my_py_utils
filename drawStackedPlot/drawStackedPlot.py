@@ -36,7 +36,7 @@ def draw_stackPlot(
     labels_groups: [str],
     order_molecules: [str],
     labels_molecules: [str],
-    colors_molecules: [(int)],
+    colors_molecules: [(float)],
     main_title: str,
     y_axis_title: str,
     x_axis_title: str,

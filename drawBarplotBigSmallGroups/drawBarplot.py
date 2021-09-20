@@ -16,7 +16,7 @@ def draw_barplot_means_sds(
     labels_big_group: [str],
     order_small_group: [str],
     labels_small_group: [str],
-    colors_small_group: [(int)],
+    colors_small_group: [(float)],
     main_title: str,
     y_axis_title: str,
     x_axis_title: str,
