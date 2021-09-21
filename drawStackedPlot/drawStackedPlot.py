@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 
-def dfToColFract(df: pd.DataFrame, percentage: bool = True):
+def dfToColFract(df: pd.DataFrame, percentage: bool = True) -> pd.DataFrame:
 
     """
     transforms all the numbers in a table to
