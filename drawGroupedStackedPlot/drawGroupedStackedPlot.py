@@ -58,6 +58,7 @@ def draw_groupedStackPlot(
     x_axis_title: str,
     y_axis_title: str,
     labels_bars: [str],
+    rotation: int,
 ) -> mpl.axes:
 
     """
@@ -77,6 +78,7 @@ def draw_groupedStackPlot(
     x_axis_title - title displayed below x axis
     y_axis_title - title displayed on left of the y axis
     labels_bars - labels displayed below the bars (noOfBars = len(bg)*len(sg))
+    rotation - rotation of x_bar's labels
 
     Output:
     ---
@@ -155,6 +157,6 @@ def draw_groupedStackPlot(
     plt.title(label=main_title)
     plt.xlabel(xlabel=x_axis_title)
     plt.ylabel(ylabel=y_axis_title)
-    plt.xticks(ticks=x_pos, labels=labels_bars)
+    plt.xticks(ticks=x_pos, labels=labels_bars, rotation=rotation)
 
     # return 0

@@ -23,7 +23,8 @@ draw_groupedStackPlot(tab_with_data=df,
                       main_title="percentage distribution",
                       y_axis_title="concentration [mg/mL]",
                       x_axis_title="",
-                      labels_bars=["Lean\nfemale", "Lean\nmale", "Obese\nfemale", "Obese\nmale"])
+                      labels_bars=["Lean\nfemale", "Lean\nmale", "Obese\nfemale", "Obese\nmale"],
+					  rotation=90)
 # optional
 # plt.show()
 # plt.clf()
