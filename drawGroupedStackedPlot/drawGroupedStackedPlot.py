@@ -3,69 +3,97 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import seaborn as sns
 
 
-def draw_barplot_means_sds(
-    tab_with_data: pd.DataFrame,
-    tab_with_signif_markers: pd.DataFrame,
-    col_with_digits: str,
-    col_big_group: str,
-    col_small_group: str,
-    order_big_group: [str],
-    labels_big_group: [str],
-    order_small_group: [str],
-    labels_small_group: [str],
-    colors_small_group: [(float)],
-    main_title: str,
-    y_axis_title: str,
-    x_axis_title: str,
-) -> mpl.axes:
+def dfToRowFract(
+    df: pd.DataFrame,
+    cols_bg_sg: [str] = ["bg", "sg"],
+    cols_vals: [str] = ["molecule1", "molecule2"],
+    percentage: bool = True,
+):
 
     """
-    draws a barplot (with signif_markers) grouped by big_group and small_group
+    transforms all the numbers in a df to fractions of rowSums (or percentages)
 
     Input:
     ---
-    tab_with_data - df with oryginal data, columns: [val1, val2, gr1, gr2]
-    tab_with_signif_markers - col_names: [bg1_sg1, bg1_sg2, bg2_sg1, bg2_sg2], row_names=[val1, val2]
-    col_with_digits - name of the column with digits for which we draw barplot
-    col_big_group - name of the column with 'big grouping' (clusters of bars)
-    col_small_group - name of the column with 'smal grouping' (bars within a cluster)
-    order_big_group - order of big groups (left to right) on the graph
-    labels_big_group - labels of big_gr displayed on the graph (x-axis ticks)
-    order_small_group - order of small groups (left to right) in the cluster
-    labels_small_group - labels of small groups (displayed on legend)
-    colors_small_group - colors of small_gr (bars withing a cluster and legend)
-    main_title - title of the graph
-    y_axis_title - title on the y-axis (over y-axis, on the left)
-    x_axis_title - title on the (under) x-axis
+    df - table to be transformed
+    cols_bg_sg - name of columns with 'big' and 'small' groups
+    cols_vals - name of columns with digits
+    percentage - should y axis represent absolute values or pct (upto 100%)
 
     Output:
     ---
-    a graph (barplot) - mpl.axes object
-    bg - big_group (1, 2, 3...) - localization of bar groups (0, 1, 2, ..., n)
-    sg - small_group (1, 2, 3...) - localization of bars within a group
-    graph outlook
-    bg1_sg1, bg1_sg2, bg1_sg3,...    bg2_sg1, bg2_sg2, bg2_sg3,...
+    new transformed table, each result is val1/colSum1 (optionally: *100)
     """
 
-    grouped_data: pd.DataFrame = tab_with_data[
-        [col_with_digits, col_big_group, col_small_group]
-    ].groupby([col_big_group, col_small_group])
+    df_means: pd.DataFrame = (
+        df[cols_bg_sg + cols_vals].groupby(cols_bg_sg).mean().reset_index()
+    )
 
-    means: pd.DataFrame = grouped_data.mean().reset_index()
-    stds: pd.DataFrame = grouped_data.std().reset_index()
+    rowSums: pd.Series = df_means.loc[:, cols_vals].sum(axis=1)
+    fractions: pd.DataFrame = df_means.loc[:, cols_vals].divide(
+        rowSums, axis=0
+    )
+    if percentage:
+        fractions = fractions * 100
 
-    maks_val: float = (
-        means[col_with_digits].max() + stds[col_with_digits].max()
-    ) * 1.17  # 1.17 adds additional free space above whisker cap
-    signif_makrers_heights: pd.DataFrame = means.copy()
-    signif_makrers_heights[col_with_digits] = (
-        signif_makrers_heights[col_with_digits] + stds[col_with_digits]
-    ) + (
-        maks_val * 0.04
-    )  # + (maks_val * 0.04) additonal space between maker and whisker cap
+    result: pd.DataFrame = pd.concat(
+        [df_means.loc[:, cols_bg_sg], fractions], axis=1
+    )
+
+    return result
+
+
+def draw_groupedStackPlot(
+    tab_with_data: pd.DataFrame,
+    col_big_group: str,
+    col_small_group: str,
+    cols_digits: [str],
+    order_cols_digits: [str],
+    colors_digits: [(float)],
+    labels_digits: [str],
+    percentage: bool,
+    main_title: str,
+    x_axis_title: str,
+    y_axis_title: str,
+    labels_bars: [str],
+) -> mpl.axes:
+
+    """
+    draws a stackbarplot (bars in absolute or percentage quota, one on another)
+
+    Input:
+    ---
+    tab_with_data - df with data (like the one in mock_data.csv)
+    col_big_group - name of col with 'big' group
+    col_small_group - name of col with 'small' group
+    cols_digits - name of cols with digits to (each col new stack layer)
+    order_cols_digits - order in which cols of digits will be ploted (btm->top)
+    colors_digits - colors of cols with digits (colors of stack layers)
+    labels_digits - labels of stack layers to be used in legend
+    percentage - should plot absolute values or percentages (sum=100%)
+    main_title - main title displayed above the plot
+    x_axis_title - title displayed below x axis
+    y_axis_title - title displayed on left of the y axis
+    labels_bars - labels displayed below the bars (noOfBars = len(bg)*len(sg))
+
+    Output:
+    ---
+    a graph (stacked barplot or stacked percentage plot) - mpl.axes object
+    """
+
+    tab_data: pd.DataFrame = tab_with_data.copy()
+    tab_data = tab_data.loc[:, cols_digits + [col_big_group, col_small_group]]
+    if percentage:
+        tab_data = dfToRowFract(
+            df=tab_data,
+            cols_bg_sg=[col_big_group, col_small_group],
+            cols_vals=cols_digits,
+            percentage=percentage,
+        )
+
+    maxVal: float = tab_data.sum(axis=1).max()
 
     plt.grid(
         b=True,
@@ -78,76 +106,55 @@ def draw_barplot_means_sds(
         zorder=0,
     )
 
-    g: mpl.axes = sns.barplot(
-        x=tab_with_data.loc[:, col_big_group],
-        y=tab_with_data.loc[:, col_with_digits],
-        hue=tab_with_data.loc[:, col_small_group],
-        palette=colors_small_group,
-        order=order_big_group,
-        hue_order=order_small_group,
-        capsize=0.25,
-        errwidth=1.5,
-        edgecolor="black",
-        linewidth=2,
-        ci="sd",
-        zorder=2,
-    )
+    lenBg: int = len(tab_with_data.loc[:, col_big_group].unique())
+    lenSg: int = len(tab_with_data.loc[:, col_small_group].unique())
+    noOfBars: int = lenBg * lenSg
 
-    ticks_big: [int] = list(range(len(order_big_group)))
-    bar_width: float = g.patches[0].get_width()
-    bars_per_big_group: int = len(order_small_group)
-    half_way: float = (bar_width / 2) * bars_per_big_group / 2
-    ticks_small: [float] = [
-        j
-        for tick_big in ticks_big
-        for j in np.linspace(
-            start=tick_big - half_way,
-            stop=tick_big + half_way,
-            num=bars_per_big_group,
-        )
+    bar_width: float = 0.5 / lenSg
+    half_way: float = bar_width * lenSg / 4
+    x_pos: [int] = [
+        np.linspace(start=i - half_way, stop=i + half_way, num=lenSg)
+        for i in range(lenBg)
     ]
+    x_pos = list(np.concatenate(x_pos))
 
-    # only upper whisker of sd is visible
-    for bar in g.patches:
-        bar.set_zorder(3)
+    bottoms: [float] = [0] * noOfBars
+
+    for i in range(len(order_cols_digits)):
+
+        heights = list(tab_data.loc[:, order_cols_digits[i]])
+        plt.bar(
+            x=x_pos,
+            height=heights,
+            bottom=bottoms,
+            color=colors_digits[i],
+            edgecolor="black",
+            width=bar_width,
+            zorder=2,
+        )
+
+        bottoms = list(map(lambda x, y: x + y, bottoms, heights))
 
     axes = plt.gca()
-    axes.set_ylim([0, maks_val * 1.1])  # 1.1 additional space,
-    # e.g so that legend would not overlap with signif_markers
+    axes.set_ylim([0, maxVal * 1.3])
+    axes.set_xlim([x_pos[0] - bar_width, x_pos[-1] + bar_width])
 
     handles1: [mpatches.Patch] = []
-    for i in range(len(order_small_group)):
+    for i in range(len(order_cols_digits)):
         handles1.append(
             mpatches.Patch(
                 edgecolor="black",
                 linewidth=2,
-                facecolor=colors_small_group[i],
-                label=labels_small_group[i],
+                facecolor=colors_digits[i],
+                label=labels_digits[i],
             )
         )
 
     plt.legend(handles=handles1, loc="best")
 
-    counter: int = 0
-    for big_group in order_big_group:
-        for small_group in order_small_group:
-            plt.text(
-                x=ticks_small[counter],
-                y=signif_makrers_heights[
-                    np.logical_and(
-                        signif_makrers_heights[col_small_group]
-                        == small_group,
-                        signif_makrers_heights[col_big_group] == big_group,
-                    )
-                ][col_with_digits],
-                s=tab_with_signif_markers.loc[
-                    col_with_digits, big_group + "_" + small_group
-                ],
-                horizontalalignment="center",
-            )
-            counter += 1
-
     plt.title(label=main_title)
     plt.xlabel(xlabel=x_axis_title)
     plt.ylabel(ylabel=y_axis_title)
-    plt.xticks(ticks=ticks_big, labels=labels_big_group)
+    plt.xticks(ticks=x_pos, labels=labels_bars)
+
+    # return 0
