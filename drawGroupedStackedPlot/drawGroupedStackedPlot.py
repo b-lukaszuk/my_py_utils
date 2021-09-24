@@ -114,7 +114,7 @@ def draw_groupedStackPlot(
 
     bar_width: float = 0.5 / lenSg
     half_way: float = bar_width * lenSg / 4
-    x_pos: [int] = [
+    x_pos: [float] = [
         np.linspace(start=i - half_way, stop=i + half_way, num=lenSg)
         for i in range(lenBg)
     ]
