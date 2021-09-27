@@ -96,13 +96,13 @@ def draw_barplot_means_sds(
     ticks_big: [int] = list(range(len(order_big_group)))
     bar_width: float = g.patches[0].get_width()
     bars_per_big_group: int = len(order_small_group)
-    half_way: float = (bar_width / 2) * bars_per_big_group / 2
+    half_way: float = bar_width * bars_per_big_group / 2
     ticks_small: [float] = [
         j
         for tick_big in ticks_big
         for j in np.linspace(
-            start=tick_big - half_way,
-            stop=tick_big + half_way,
+            start=tick_big - half_way + (bar_width / 2),
+            stop=tick_big + half_way - (bar_width / 2),
             num=bars_per_big_group,
         )
     ]

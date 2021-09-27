@@ -111,14 +111,19 @@ def draw_groupedStackPlot(
     lenBg: int = len(tab_with_data.loc[:, col_big_group].unique())
     lenSg: int = len(tab_with_data.loc[:, col_small_group].unique())
     noOfBars: int = lenBg * lenSg
+    ticks_big: [int] = list(range(lenBg))
+    bar_width: float = 0.5 / (lenSg + 2)
 
-    bar_width: float = 0.5 / lenSg
-    half_way: float = bar_width * lenSg / 4
+    half_way: float = bar_width * lenSg / 2
     x_pos: [float] = [
-        np.linspace(start=i - half_way, stop=i + half_way, num=lenSg)
-        for i in range(lenBg)
+        j
+        for tick_big in ticks_big
+        for j in np.linspace(
+            start=tick_big - half_way + (bar_width / 2),
+            stop=tick_big + half_way - (bar_width / 2),
+            num=lenSg,
+        )
     ]
-    x_pos = list(np.concatenate(x_pos))
 
     bottoms: [float] = [0] * noOfBars
 
