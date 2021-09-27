@@ -112,7 +112,7 @@ def draw_groupedStackPlot(
     lenSg: int = len(tab_with_data.loc[:, col_small_group].unique())
     noOfBars: int = lenBg * lenSg
     ticks_big: [int] = list(range(lenBg))
-    bar_width: float = 0.5 / (lenSg + 2)
+    bar_width: float = 1 / (lenSg + 2)  # 1 is the distance between ticks_big
 
     half_way: float = bar_width * lenSg / 2
     x_pos: [float] = [
