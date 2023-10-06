@@ -89,7 +89,7 @@ def draw_barplot_means_sds(
         errwidth=1.5,
         edgecolor="black",
         linewidth=2,
-        ci="sd",
+        errorbar="sd",
         zorder=2,
     )
 
