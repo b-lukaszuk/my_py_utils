@@ -1,6 +1,7 @@
 import pandas as pd
 
 df = pd.read_csv("./listOfJournals.csv")
+dfIfPoints = pd.read_csv("./if_list.csv", sep=";")
 
 # columns with discipline names (check it with listOfJournals.csv file):
 # 301 - nauki farmaceutyczne; 302- nauki medyczne
@@ -43,8 +44,27 @@ def areJounalTitleCriteriaFullfilled(row):
 
 
 def isMenPoints(row, pts):
-    # print("testing ", row["Punkty"], "in", pts, "?", row["Punkty"] in pts)
     return row["Punktacja"] in pts
+
+
+def rmCharFromText(text, char):
+    return text.strip().replace(char, "")
+
+
+def getIndOfIssn(colWithIssns, issn):
+    for i, colIssn in enumerate(colWithIssns):
+        if rmCharFromText(str(issn), "-") in colIssn:
+            return i
+    return -99
+
+
+def getIFsForIssns(dfIfs, issns):
+    colWithIssns = list(dfIfs["Issn"])
+    ifs = []
+    for issn in issns:
+        ifs.append(dfIfs.iloc[
+            getIndOfIssn(colWithIssns, issn), ]['Cites / Doc. (2years)'])
+    return ifs
 
 
 ###############################################################################
@@ -60,6 +80,11 @@ rowsKeywordsOK = list(
 )
 df_w_men_pts_and_disciplines_and_keywords = df_w_men_pts_and_disciplines[
     rowsKeywordsOK]
+
+ifs = getIFsForIssns(
+    dfIfPoints, list(df_w_men_pts_and_disciplines_and_keywords["issn"]))
+
+df_w_men_pts_and_disciplines_and_keywords.insert(loc=1, column="IF", value=ifs)
 
 df_w_men_pts_and_disciplines_and_keywords.to_csv(
     "./journals_candidates_query1.csv", index=False, header=True
