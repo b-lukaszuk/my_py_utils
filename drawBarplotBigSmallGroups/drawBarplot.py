@@ -20,8 +20,8 @@ def draw_barplot_means_sds(
     main_title: str,
     y_axis_title: str,
     x_axis_title: str,
+    draw_points: bool = False,
 ) -> mpl.axes:
-
     """
     draws a barplot (with signif_markers) grouped by big_group and small_group
 
@@ -40,6 +40,7 @@ def draw_barplot_means_sds(
     main_title - title of the graph
     y_axis_title - title on the y-axis (over y-axis, on the left)
     x_axis_title - title on the (under) x-axis
+    draw_points - should overlay points (sns.swarmplot) on bars
 
     Output:
     ---
@@ -64,11 +65,11 @@ def draw_barplot_means_sds(
     signif_makrers_heights[col_with_digits] = (
         signif_makrers_heights[col_with_digits] + stds[col_with_digits]
     ) + (
-        maks_val * 0.04
+        maks_val * 0.1
     )  # + (maks_val * 0.04) additonal space between maker and whisker cap
 
     plt.grid(
-        b=True,
+        visible=True,  # was: b=True
         linestyle="dashed",
         which="major",
         alpha=0.6,
@@ -86,12 +87,28 @@ def draw_barplot_means_sds(
         order=order_big_group,
         hue_order=order_small_group,
         capsize=0.25,
-        errwidth=1.5,
+        err_kws={"linewidth": 1.5},
         edgecolor="black",
         linewidth=2,
         errorbar="sd",
         zorder=2,
     )
+
+    if draw_points:
+        g1: mpl.axes = sns.swarmplot(
+            x=tab_with_data.loc[:, col_big_group],
+            y=tab_with_data.loc[:, col_with_digits],
+            hue=tab_with_data.loc[:, col_small_group],
+            palette=colors_small_group,
+            order=order_big_group,
+            dodge=True,
+            hue_order=order_small_group,
+            size=15,
+            edgecolor="black",
+            linewidth=2,
+            alpha=0.5,
+            zorder=3,
+        )
 
     ticks_big: [int] = list(range(len(order_big_group)))
     bar_width: float = g.patches[0].get_width()
@@ -135,15 +152,16 @@ def draw_barplot_means_sds(
                 x=ticks_small[counter],
                 y=signif_makrers_heights[
                     np.logical_and(
-                        signif_makrers_heights[col_small_group]
-                        == small_group,
+                        signif_makrers_heights[col_small_group] == small_group,
                         signif_makrers_heights[col_big_group] == big_group,
                     )
-                ][col_with_digits],
+                ][col_with_digits].iloc[0],
                 s=tab_with_signif_markers.loc[
                     col_with_digits, big_group + "_" + small_group
                 ],
                 horizontalalignment="center",
+                fontdict={"fontsize": 20},
+                zorder=4,
             )
             counter += 1
 
