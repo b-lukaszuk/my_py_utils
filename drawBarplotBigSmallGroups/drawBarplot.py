@@ -28,10 +28,12 @@ def draw_barplot_means_sds(
     Input:
     ---
     tab_with_data - df with oryginal data, columns: [val1, val2, gr1, gr2]
-    tab_with_signif_markers - col_names: [bg1_sg1, bg1_sg2, bg2_sg1, bg2_sg2], row_names=[val1, val2]
+    tab_with_signif_markers - col_names: [bg1_sg1, bg1_sg2, bg2_sg1, bg2_sg2],
+                              row_names=[val1, val2]
     col_with_digits - name of the column with digits for which we draw barplot
     col_big_group - name of the column with 'big grouping' (clusters of bars)
-    col_small_group - name of the column with 'smal grouping' (bars within a cluster)
+    col_small_group - name of the column with 'smal grouping'
+                                      (bars within a cluster)
     order_big_group - order of big groups (left to right) on the graph
     labels_big_group - labels of big_gr displayed on the graph (x-axis ticks)
     order_small_group - order of small groups (left to right) in the cluster
@@ -86,16 +88,16 @@ def draw_barplot_means_sds(
         palette=colors_small_group,
         order=order_big_group,
         hue_order=order_small_group,
-        capsize=0.25,
-        err_kws={"linewidth": 1.5},
+        capsize=0.65,
+        err_kws={"linewidth": 3},
         edgecolor="black",
-        linewidth=2,
+        linewidth=3,
         errorbar="sd",
         zorder=2,
     )
 
     if draw_points:
-        g1: mpl.axes = sns.swarmplot(
+        sns.swarmplot(
             x=tab_with_data.loc[:, col_big_group],
             y=tab_with_data.loc[:, col_with_digits],
             hue=tab_with_data.loc[:, col_small_group],
@@ -160,7 +162,7 @@ def draw_barplot_means_sds(
                     col_with_digits, big_group + "_" + small_group
                 ],
                 horizontalalignment="center",
-                fontdict={"fontsize": 20},
+                fontdict={"fontsize": 26},
                 zorder=4,
             )
             counter += 1
