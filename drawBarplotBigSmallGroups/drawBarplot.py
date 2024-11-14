@@ -171,3 +171,143 @@ def draw_barplot_means_sds(
     plt.xlabel(xlabel=x_axis_title)
     plt.ylabel(ylabel=y_axis_title)
     plt.xticks(ticks=ticks_big, labels=labels_big_group)
+
+
+def draw_simple_barplot_means_sds(
+    tab_with_data: pd.DataFrame,
+    tab_with_signif_markers: pd.DataFrame,
+    col_with_digits: str,
+    col_group: str,
+    order_group: [str],
+    labels_group: [str],
+    colors_group: [(float)],
+    main_title: str,
+    y_axis_title: str,
+    x_axis_title: str,
+    draw_points: bool = False,
+) -> mpl.axes:
+    """
+    draws a barplot (with signif_markers)
+
+    Input:
+    ---
+    tab_with_data - df with oryginal data, columns: [val1, val2, gr1, gr2, ...]
+    tab_with_signif_markers - col_names: [gr1, gr2,...], row_names=[val1, val2]
+    col_with_digits - name of the column with digits for which we draw barplot
+    col_group - name of the column with group labels
+    order_group - order of groups (left to right) on the graph
+    labels_group - labels of big_gr displayed on the graph (x-axis ticks)
+    colors_group - colors of groups
+    main_title - title of the graph
+    y_axis_title - title on the y-axis (over y-axis, on the left)
+    x_axis_title - title on the (under) x-axis
+    draw_points - should overlay points (sns.swarmplot) on bars
+
+    Output:
+    ---
+    a graph (barplot) - mpl.axes object
+    """
+
+    grouped_data: pd.DataFrame = tab_with_data[[col_with_digits, col_group]].groupby(
+        [col_group]
+    )
+
+    means: pd.DataFrame = grouped_data.mean().reset_index()
+    stds: pd.DataFrame = grouped_data.std().reset_index()
+
+    maks_val: float = (
+        means[col_with_digits].max() + stds[col_with_digits].max()
+    ) * 1.17  # 1.17 adds additional free space above whisker cap
+    signif_makrers_heights: pd.DataFrame = means.copy()
+    signif_makrers_heights[col_with_digits] = (
+        signif_makrers_heights[col_with_digits] + stds[col_with_digits]
+    ) + (
+        maks_val * 0.1
+    )  # + (maks_val * 0.04) additonal space between maker and whisker cap
+
+    plt.grid(
+        visible=True,  # was: b=True
+        linestyle="dashed",
+        which="major",
+        alpha=0.6,
+        axis="y",
+        color="grey",
+        dashes=(5, 2),
+        zorder=0,
+    )
+
+    g: mpl.axes = sns.barplot(
+        x=tab_with_data.loc[:, col_group],
+        y=tab_with_data.loc[:, col_with_digits],
+        hue=tab_with_data.loc[:, col_group],
+        palette=colors_group,
+        legend=False,
+        order=order_group,
+        hue_order=order_group,
+        capsize=0.65,
+        err_kws={"linewidth": 3},
+        edgecolor="black",
+        linewidth=3,
+        errorbar="sd",
+        zorder=2,
+    )
+
+    if draw_points:
+        sns.swarmplot(
+            x=tab_with_data.loc[:, col_group],
+            y=tab_with_data.loc[:, col_with_digits],
+            hue=tab_with_data.loc[:, col_group],
+            palette=colors_group,
+            legend=False,
+            order=order_group,
+            dodge=False,
+            hue_order=order_group,
+            size=15,
+            edgecolor="black",
+            linewidth=2,
+            alpha=0.5,
+            zorder=3,
+        )
+
+    ticks_big: [int] = list(range(len(order_group)))
+
+    # only upper whisker of sd is visible
+    for bar in g.patches:
+        bar.set_zorder(3)
+
+    axes = plt.gca()
+    axes.set_ylim([0, maks_val * 1.1])  # 1.1 additional space,
+    # e.g so that legend would not overlap with signif_markers
+
+    handles1: [mpatches.Patch] = []
+    for i in range(len(order_group)):
+        handles1.append(
+            mpatches.Patch(
+                edgecolor="black",
+                linewidth=2,
+                facecolor=colors_group[i],
+                label=labels_group[i],
+            )
+        )
+
+    plt.legend(handles=handles1, loc="best")
+
+    counter: int = 0
+    for big_group in order_group:
+        plt.text(
+            x=ticks_big[counter],
+            y=signif_makrers_heights.loc[
+                [gr == big_group for gr in signif_makrers_heights[col_group]],
+                col_with_digits,
+            ].iloc[0],
+            s=tab_with_signif_markers.loc[col_with_digits, big_group],
+            horizontalalignment="center",
+            fontdict={"fontsize": 26},
+            zorder=4,
+        )
+        counter += 1
+
+    plt.title(label=main_title)
+    plt.xlabel(xlabel=x_axis_title)
+    plt.ylabel(ylabel=y_axis_title)
+    plt.xticks(ticks=ticks_big, labels=labels_group)
