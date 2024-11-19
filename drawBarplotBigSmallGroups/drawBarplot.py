@@ -21,6 +21,7 @@ def draw_barplot_means_sds(
     y_axis_title: str,
     x_axis_title: str,
     draw_points: bool = False,
+    use_sem: bool = False,
 ) -> mpl.axes:
     """
     draws a barplot (with signif_markers) grouped by big_group and small_group
@@ -43,6 +44,7 @@ def draw_barplot_means_sds(
     y_axis_title - title on the y-axis (over y-axis, on the left)
     x_axis_title - title on the (under) x-axis
     draw_points - should overlay points (sns.swarmplot) on bars
+    use_sem - should use standard error of the mean as whiskers instead of sd
 
     Output:
     ---
@@ -59,10 +61,18 @@ def draw_barplot_means_sds(
 
     means: pd.DataFrame = grouped_data.mean().reset_index()
     stds: pd.DataFrame = grouped_data.std().reset_index()
+    extra_space_above_cap = 1.17  # should be > 1
+
+    if use_sem:
+        stds = grouped_data.sem().reset_index()
+    if draw_points:
+        extra_space_above_cap = 1.8
+    if draw_points and use_sem:
+        extra_space_above_cap = 2.8
 
     maks_val: float = (
         means[col_with_digits].max() + stds[col_with_digits].max()
-    ) * 1.17  # 1.17 adds additional free space above whisker cap
+    ) * extra_space_above_cap
     signif_makrers_heights: pd.DataFrame = means.copy()
     signif_makrers_heights[col_with_digits] = (
         signif_makrers_heights[col_with_digits] + stds[col_with_digits]
@@ -92,7 +102,7 @@ def draw_barplot_means_sds(
         err_kws={"linewidth": 3},
         edgecolor="black",
         linewidth=3,
-        errorbar="sd",
+        errorbar="se" if use_sem else "sd",
         zorder=2,
     )
 
@@ -162,7 +172,7 @@ def draw_barplot_means_sds(
                     col_with_digits, big_group + "_" + small_group
                 ],
                 horizontalalignment="center",
-                fontdict={"fontsize": 26},
+                fontdict={"fontsize": 30},
                 zorder=4,
             )
             counter += 1
@@ -185,6 +195,7 @@ def draw_simple_barplot_means_sds(
     y_axis_title: str,
     x_axis_title: str,
     draw_points: bool = False,
+    use_sem: bool = False,
 ) -> mpl.axes:
     """
     draws a barplot (with signif_markers)
@@ -202,22 +213,30 @@ def draw_simple_barplot_means_sds(
     y_axis_title - title on the y-axis (over y-axis, on the left)
     x_axis_title - title on the (under) x-axis
     draw_points - should overlay points (sns.swarmplot) on bars
+    use_sem - should use standard error of the mean as whiskers instead of sd
 
     Output:
     ---
     a graph (barplot) - mpl.axes object
     """
 
-    grouped_data: pd.DataFrame = tab_with_data[[col_with_digits, col_group]].groupby(
-        [col_group]
-    )
+    grouped_data: pd.DataFrame = tab_with_data[
+        [col_with_digits, col_group]].groupby([col_group])
 
     means: pd.DataFrame = grouped_data.mean().reset_index()
     stds: pd.DataFrame = grouped_data.std().reset_index()
+    extra_space_above_cap = 1.17  # should be > 1
+
+    if use_sem:
+        stds = grouped_data.sem().reset_index()
+    if draw_points:
+        extra_space_above_cap = 1.8
+    if draw_points and use_sem:
+        extra_space_above_cap = 2.8
 
     maks_val: float = (
         means[col_with_digits].max() + stds[col_with_digits].max()
-    ) * 1.17  # 1.17 adds additional free space above whisker cap
+    ) * extra_space_above_cap
     signif_makrers_heights: pd.DataFrame = means.copy()
     signif_makrers_heights[col_with_digits] = (
         signif_makrers_heights[col_with_digits] + stds[col_with_digits]
@@ -248,7 +267,7 @@ def draw_simple_barplot_means_sds(
         err_kws={"linewidth": 3},
         edgecolor="black",
         linewidth=3,
-        errorbar="sd",
+        errorbar="se" if use_sem else "sd",
         zorder=2,
     )
 
@@ -298,11 +317,10 @@ def draw_simple_barplot_means_sds(
             x=ticks_big[counter],
             y=signif_makrers_heights.loc[
                 [gr == big_group for gr in signif_makrers_heights[col_group]],
-                col_with_digits,
-            ].iloc[0],
+                col_with_digits].iloc[0],
             s=tab_with_signif_markers.loc[col_with_digits, big_group],
             horizontalalignment="center",
-            fontdict={"fontsize": 26},
+            fontdict={"fontsize": 30},
             zorder=4,
         )
         counter += 1
